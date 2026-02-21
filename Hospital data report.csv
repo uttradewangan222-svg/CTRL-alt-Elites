@@ -1,0 +1,7 @@
+Patient ID, Patient Name, DOB, Gender, Blood Type, Emergency contact, Admission Date, Current medication, Stauts, Payment Status
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+1120, ritesh dewangan, 28/02/2005, male, A+, fracture, 23/01/2025, 7974090239, discharged, done
+1320, vikas, 12/03/2008, male, B+, blood loss, 23/09/2025, 56894545094, in, pending
+1230, Tamesh, 14/08/2004, male, O-, normal cut, 30/03/2025, 54875946654, discharged, done

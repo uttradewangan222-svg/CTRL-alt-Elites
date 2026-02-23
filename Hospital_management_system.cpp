@@ -121,7 +121,7 @@ void read(string patient_id)
                     break;
             }
         }
-        if(found=false)
+        if(found==false)
         {
                 cout << "Patient not found." << endl;
         }
@@ -139,10 +139,157 @@ void  patient_entry()
     p1.info();
 }
 
+void updatePatient(string patient_id)
+{
+    ifstream file("Hospital data report.csv");
+    ofstream temp("temp.csv");
+
+    string line;
+    bool updated = false;
+
+    if (!file.is_open() || !temp.is_open())
+    {
+        cout << "Error opening file.\n";
+        return;
+    }
+
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        vector<string> row;
+        string value;
+
+        while (getline(ss, value, ','))
+            row.push_back(value);
+
+        if (row.size() < 10)
+        {
+            temp << line << endl;
+            continue;
+        }
+
+        if (row[0] == patient_id)
+        {
+            cout << "Updating Patient ID: " << patient_id << endl;
+
+            cout << "Enter new Status: ";
+            getline(cin, row[8]);
+
+            cout << "Enter new Payment Status: ";
+            getline(cin, row[9]);
+
+            updated = true;
+        }
+
+        temp << row[0] << "," << row[1] << "," << row[2] << "," << row[3] << ","
+             << row[4] << "," << row[5] << "," << row[6] << "," << row[7] << ","
+             << row[8] << "," << row[9] << endl;
+    }
+
+    file.close();
+    temp.close();
+
+    remove("Hospital data report.csv");
+    rename("temp.csv", "Hospital data report.csv");
+
+    if (updated)
+        cout << "Record updated successfully.\n";
+    else
+        cout << "Patient ID not found.\n";
+}
+
+void deletePatient(string patient_id)
+{
+    ifstream file("Hospital data report.csv");
+    ofstream temp("temp.csv");
+
+    string line;
+    bool deleted = false;
+
+    if (!file.is_open() || !temp.is_open())
+    {
+        cout << "Error opening file.\n";
+        return;
+    }
+
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string id;
+        getline(ss, id, ',');
+
+        if (id == patient_id)
+        {
+            deleted = true;
+            continue; // Skip this row → deletes it
+        }
+
+        temp << line << endl;
+    }
+
+    file.close();
+    temp.close();
+
+    remove("Hospital data report.csv");
+    rename("temp.csv", "Hospital data report.csv");
+
+    if (deleted)
+        cout << "Record deleted successfully.\n";
+    else
+        cout << "Patient ID not found.\n";
+}
+
 int main()
 {
     //create();
     patient_entry();
    // cout << user1.payment << endl;
     //read("sds");
+    int choice;
+    string pid;
+
+    while (true)
+    {
+        cout << "1. New Patient Entry\n";
+        cout << "2. Read/Search Patient\n";
+        cout << "3. Update Patient Record\n";
+        cout << "4. Delete Patient Record\n";
+        cout << "5. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+        cin.ignore();  // required for getline()
+
+        switch (choice)
+        {
+            case 1:
+                patient_entry();
+                break;
+
+            case 2:
+                cout << "Enter Patient ID: ";
+                getline(cin, pid);
+                read(pid);
+                break;
+
+            case 3:
+                cout << "Enter Patient ID to update: ";
+                getline(cin, pid);
+                updatePatient(pid);
+                break;
+
+            case 4:
+                cout << "Enter Patient ID to delete: ";
+                getline(cin, pid);
+                deletePatient(pid);
+                break;
+
+            case 5:
+                cout << "Exiting program...\n";
+                return 0;   // exits the menu() function
+
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    }
 }
+

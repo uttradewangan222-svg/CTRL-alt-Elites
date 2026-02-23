@@ -1,144 +1,129 @@
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<vector>
-#include<string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <limits>
 using namespace std;
 
 class patient
 {
-    private :
-        string name;
-        string bt;
-        string contact;
-        string medication;
+private:
+    string name;
+    string bt;
+    string contact;
+    string medication;
 
-    public :
-        string id;
-        string dob;
-        string gender;
-        string admit;
-        string status;
-        string payment;
+public:
+    string id;
+    string dob;
+    string gender;
+    string admit;
+    string status;
+    string payment;
 
-        // A Destructor which destroys the Object when it goes out of scope.
-        ~patient()
+    void info()
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        cout << "-----------Please enter the INFO of patient--------------\n";
+        cout << "Patient ID: ";
+        getline(cin, id);
+        cout << "Patient Name: ";
+        getline(cin, name);
+        cout << "Date of Birth: ";
+        getline(cin, dob);
+        cout << "Sex: ";
+        getline(cin, gender);
+        cout << "Blood Type: ";
+        getline(cin, bt);
+        cout << "Current Medication: ";
+        getline(cin, medication);
+        cout << "Admission Date: ";
+        getline(cin, admit);
+        cout << "Contact Details: ";
+        getline(cin, contact);
+        cout << "Status: ";
+        getline(cin, status);
+        cout << "Payment Status: ";
+        getline(cin, payment);
+
+        ofstream inputs("Hospital data report.csv", ios::app);
+        if (inputs.is_open())
         {
-            cout << "The object is destroyed. " << endl;
-        }
+            inputs << id << "," << name << "," << dob << "," << gender << ","
+                   << bt << "," << medication << "," << admit << ","
+                   << contact << "," << status << "," << payment << "\n";
 
-        // Take all info from user and stores it in csv file.
-        void info()
+            inputs.close();
+            cout << "The information is saved.\n";
+        }
+        else
         {
-            cout << "-----------Please enter the INFO of patient.--------------" << endl;
-            cout << "Patient ID : " ;
-            getline(cin, id);
-            cout << "Patient Name : " ;
-            getline(cin, name);
-            cout << "Date of Birth : " ;
-            getline(cin, dob);
-            cout << "Sex : " ;
-            getline(cin, gender);
-            cout << "Blood Type  : " ;
-            getline(cin, bt);
-            cout << "Current Medication : " ;
-            getline(cin, medication);
-            cout << "Admission Date : " ;
-            getline(cin, admit);
-            cout << "Contact Details : " ;
-            getline(cin, contact);
-            cout << "Status : ";
-            getline(cin, status);
-            cout << "Payment Status : " ;
-            getline(cin, payment);
-
-            ofstream inputs("Hospital data report.csv", ios::app);
-
-            if(inputs.is_open())
-            {
-                inputs << id<<", "<<name<<", "<<dob<<", "<<gender<<", "<<bt<<", "<<medication<<", "<<admit<<", "<<contact<<", "<<status<<", "<<payment << endl;
-                inputs.close();
-                cout << "The information is saved." <<endl;
-            }
-            else
-                cout << "The file is not open." << endl;
-
+            cout << "The file is not open.\n";
         }
-
+    }
 };
 
-// creating a csv file
+// Create CSV File
 void create()
 {
     ofstream hospital("Hospital data report.csv");
-
-    if(hospital.is_open())
+    if (hospital.is_open())
     {
-        hospital << "Patient ID, Patient Name, DOB, Gender, Blood Type, Emergency contact, Admission Date, Current medication, Stauts, Payment Status" << endl;
-        hospital.close();
-        cout << "The file is created." << endl;
+        hospital << "PatientID,Name,DOB,Gender,BloodType,Medication,Admission,Contact,Status,Payment\n";
+        cout << "The file is created.\n";
     }
     else
-        cout << "The csv file cannot be open" << endl;
-
+        cout << "The csv file cannot be opened\n";
 }
 
-// reading a csv file
+// READ PATIENT
 void read(string patient_id)
 {
-    patient p;
+    ifstream hospital("Hospital data report.csv");
     string line;
     bool found = false;
 
-
-    ifstream hospital("Hospital data report.csv");
-    cout << "\n-----------Patient Details------------" << endl;
-    if(hospital.is_open())
+    if (!hospital.is_open())
     {
-        while(getline(hospital, line))
-        {
-            stringstream ss(line);  // getline se hospital me jo data hai uske 1 line ko line variable me store karega. while loop end of file tak chalega.
-            string value;                   // ss variable me vo line variable store hoga
-            vector<string> row;
-
-            while(getline(ss, value,','))
-            {
-                row.push_back(value);  // iss while loop me ss string variable se comma seperated strings ko value variable me store karega .
-                                                        // loop ends when ss string ends
-            }
-            if(patient_id==row[0])   // check  id required
-            {
-                    if(!row.empty())
-                    {
-                        cout << "Patient ID :" << row[0] << endl;       // prints all info
-                        cout << "Patient Name :" << row[1] << endl;
-                        cout << "Gender :" << row[3] << endl;
-                        cout << "Current Medication :" << row[7] << endl;
-                        cout << "Status:" << row[8] << endl;
-                        cout << "Payment Status:" << row[9] << endl;
-                    }
-                    found=true;  // mila to yahi se loop break karke bahar ayega nhi to end tak chalega
-                    break;
-            }
-        }
-        if(found==false)
-        {
-                cout << "Patient not found." << endl;
-        }
-        hospital.close();
-        cout << "The file is read successfully." << endl;
+        cout << "File not open.\n";
+        return;
     }
-    else
-        cout << "The file is not open." << endl;
+
+    getline(hospital, line); // skip header
+
+    while (getline(hospital, line))
+    {
+        stringstream ss(line);
+        vector<string> row;
+        string value;
+
+        while (getline(ss, value, ','))
+            row.push_back(value);
+
+        if (row.size() < 10) continue;
+
+        if (row[0] == patient_id)
+        {
+            cout << "\n---------- Patient Details ----------\n";
+            cout << "Patient ID: " << row[0] << endl;
+            cout << "Patient Name: " << row[1] << endl;
+            cout << "Gender: " << row[3] << endl;
+            cout << "Current Medication: " << row[5] << endl;
+            cout << "Status: " << row[8] << endl;
+            cout << "Payment Status: " << row[9] << endl;
+
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+        cout << "Patient not found.\n";
 }
 
-// creating object to store data in csv table
-void  patient_entry()
-{
-    patient p1;
-    p1.info();
-}
-
+// UPDATE PATIENT
 void updatePatient(string patient_id)
 {
     ifstream file("Hospital data report.csv");
@@ -149,9 +134,12 @@ void updatePatient(string patient_id)
 
     if (!file.is_open() || !temp.is_open())
     {
-        cout << "Error opening file.\n";
+        cout << "Error opening files.\n";
         return;
     }
+
+    getline(file, line);
+    temp << line << endl; // copy header
 
     while (getline(file, line))
     {
@@ -170,8 +158,9 @@ void updatePatient(string patient_id)
 
         if (row[0] == patient_id)
         {
-            cout << "Updating Patient ID: " << patient_id << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+            cout << "Updating Patient ID: " << patient_id << endl;
             cout << "Enter new Status: ";
             getline(cin, row[8]);
 
@@ -198,6 +187,7 @@ void updatePatient(string patient_id)
         cout << "Patient ID not found.\n";
 }
 
+// DELETE PATIENT
 void deletePatient(string patient_id)
 {
     ifstream file("Hospital data report.csv");
@@ -208,9 +198,12 @@ void deletePatient(string patient_id)
 
     if (!file.is_open() || !temp.is_open())
     {
-        cout << "Error opening file.\n";
+        cout << "File error.\n";
         return;
     }
+
+    getline(file, line); // header
+    temp << line << endl;
 
     while (getline(file, line))
     {
@@ -221,7 +214,7 @@ void deletePatient(string patient_id)
         if (id == patient_id)
         {
             deleted = true;
-            continue; // Skip this row → deletes it
+            continue;
         }
 
         temp << line << endl;
@@ -239,57 +232,78 @@ void deletePatient(string patient_id)
         cout << "Patient ID not found.\n";
 }
 
+
 int main()
 {
-    //create();
-    patient_entry();
-   // cout << user1.payment << endl;
-    //read("sds");
     int choice;
     string pid;
+    string pass;
+    cout << "\n\n\t\tHOSPITAL MANAGEMENT SYSTEM LOGIN\n";
+    cout << "\t\tEnter Password: ";
+    cin >> pass;
 
-    while (true)
+    if (pass == "12345")
     {
-        cout << "1. New Patient Entry\n";
+       cout << "\nAccess Granted!\n";
+        while (true)
+    {
+        cout << "\n1. New Patient Entry\n";
         cout << "2. Read/Search Patient\n";
         cout << "3. Update Patient Record\n";
         cout << "4. Delete Patient Record\n";
-        cout << "5. Exit\n";
+        cout << "5. Create File\n";
+        cout << "6. Exit\n";
         cout << "Enter choice: ";
         cin >> choice;
-        cin.ignore();  // required for getline()
 
         switch (choice)
         {
-            case 1:
-                patient_entry();
-                break;
+        case 1:
+        {
+            patient p;
+            p.info();
+            break;
+        }
+        case 2:
+            cin.ignore();
+            cout << "Enter Patient ID: ";
+            getline(cin, pid);
+            read(pid);
+            break;
 
-            case 2:
-                cout << "Enter Patient ID: ";
-                getline(cin, pid);
-                read(pid);
-                break;
+        case 3:
+            cin.ignore();
+            cout << "Enter Patient ID to update: ";
+            getline(cin, pid);
+            updatePatient(pid);
+            break;
 
-            case 3:
-                cout << "Enter Patient ID to update: ";
-                getline(cin, pid);
-                updatePatient(pid);
-                break;
+        case 4:
+            cin.ignore();
+            cout << "Enter Patient ID to delete: ";
+            getline(cin, pid);
+            deletePatient(pid);
+            break;
 
-            case 4:
-                cout << "Enter Patient ID to delete: ";
-                getline(cin, pid);
-                deletePatient(pid);
-                break;
+        case 5:
+            create();
+            break;
 
-            case 5:
-                cout << "Exiting program...\n";
-                return 0;   // exits the menu() function
+        case 6:
+            cout << "Exiting program...\n";
+            return 0;
 
-            default:
-                cout << "Invalid choice. Try again.\n";
+        default:
+            cout << "Invalid choice. Try again.\n";
         }
     }
-}
+    }    
+    else
+    {
+        cout << "\nWrong Password!\n";
+        exit(0);
+    }
 
+
+   
+}
